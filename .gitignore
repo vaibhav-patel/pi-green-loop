@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+*.tsbuildinfo
+
+# logs / os
+*.log
+.DS_Store
+
+# secrets — never commit credentials
+.env
+.env.*
+*.local
+*.pem
+*.key
+.gl_tok
+*token*
+*secret*
+.greenloop.cache

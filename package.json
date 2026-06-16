@@ -1,0 +1,61 @@
+{
+  "name": "greenloop",
+  "version": "0.1.0",
+  "description": "Keep the build green: an autonomous test/lint/typecheck feedback loop for AI coding agents. Use as a CLI, an MCP server, a Claude/Cursor skill, or a pi extension.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "greenloop": "dist/cli/index.js"
+  },
+  "exports": {
+    ".": "./dist/core/index.js",
+    "./mcp": "./dist/mcp/server.js",
+    "./pi": "./dist/pi/extension.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli/index.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "mcp",
+    "tdd",
+    "ci",
+    "tests",
+    "lint",
+    "claude",
+    "cursor",
+    "pi",
+    "coding-agent"
+  ],
+  "optionalDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.79.5",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
