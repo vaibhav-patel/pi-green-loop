@@ -13,8 +13,9 @@ One core engine, four ways to run it:
 | **Claude / Cursor skill** | drop [`skills/greenloop`](skills/greenloop/SKILL.md) into your skills dir |
 | **pi extension** | `import greenloop from "greenloop/pi"` — closed loop on the pi event bus |
 
-> Status: early scaffold (M1). Core check detection + runner + CLI are in place; MCP and pi
-> adapters are wired and being hardened. See [docs/plan.md](docs/plan.md) and [IDEAS.md](IDEAS.md).
+> Status: M1 complete. Core, CLI, and MCP server are built, tested (11 tests), and verified;
+> the pi extension typechecks against pi and awaits an in-harness run. See
+> [docs/plan.md](docs/plan.md) and [IDEAS.md](IDEAS.md).
 
 ## Quick start
 
@@ -56,6 +57,17 @@ node dist/cli/index.js init
 
 The pi adapter listens for `agent_end`, runs the checks, and on failure injects the failing
 output back as a follow-up so the agent fixes it — capped by `maxAttempts` to avoid runaway loops.
+
+## Development
+
+```bash
+npm install
+npm run build      # tsc -> dist/
+npm test           # node --test suite
+npm run typecheck  # tsc --noEmit
+```
+
+greenloop checks itself: `node dist/cli/index.js check` runs its own typecheck + test + build.
 
 ## License
 
