@@ -4,6 +4,15 @@
   "description": "Keep the build green: an autonomous test/lint/typecheck feedback loop for AI coding agents. Use as a CLI, an MCP server, a Claude/Cursor skill, or a pi extension.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaibhav-patel/greenloop.git"
+  },
+  "homepage": "https://github.com/vaibhav-patel/greenloop#readme",
+  "bugs": "https://github.com/vaibhav-patel/greenloop/issues",
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=20"
   },
@@ -21,6 +30,10 @@
     "README.md",
     "LICENSE"
   ],
+  "pi": {
+    "extensions": ["dist/pi/extension.js"],
+    "skills": ["skills"]
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx src/cli/index.ts",
