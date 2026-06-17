@@ -17,6 +17,16 @@ One core engine, four ways to run it:
 > the pi extension typechecks against pi and awaits an in-harness run. See
 > [docs/plan.md](docs/plan.md) and [IDEAS.md](IDEAS.md).
 
+## Install into pi
+
+```bash
+pi install git:github.com/vaibhav-patel/greenloop   # extension (agent_end loop + /green) and skill
+# once published to npm:
+pi install npm:greenloop
+```
+
+`import … from "greenloop/pi"` is for embedding in your own SDK app — pi users should `pi install` instead.
+
 ## Quick start
 
 ```bash

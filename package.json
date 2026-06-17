@@ -39,7 +39,7 @@
     "dev": "tsx src/cli/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test test/*.test.ts",
-    "prepublishOnly": "npm run build"
+    "prepare": "npm run build"
   },
   "keywords": [
     "ai",
@@ -52,7 +52,8 @@
     "claude",
     "cursor",
     "pi",
-    "coding-agent"
+    "coding-agent",
+    "pi-package"
   ],
   "optionalDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

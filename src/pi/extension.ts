@@ -27,7 +27,9 @@ export default function greenloop(pi: ExtensionAPI): void {
   pi.on("agent_end", async (_event, ctx) => {
     if (!state.enabled || state.running) return;
     if (ctx.mode !== "tui" && ctx.mode !== "rpc") return;
-    if (!ctx.isProjectTrusted()) return;
+    // isProjectTrusted was added in newer pi; treat its absence as trusted so older pi still works.
+    const trusted = typeof ctx.isProjectTrusted === "function" ? ctx.isProjectTrusted() : true;
+    if (!trusted) return;
     if (state.attempts >= state.maxAttempts) return;
 
     state.running = true;
