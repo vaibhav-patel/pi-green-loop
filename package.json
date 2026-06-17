@@ -1,5 +1,5 @@
 {
-  "name": "greenloop",
+  "name": "@vaibhav290797/greenloop",
   "version": "0.1.0",
   "description": "Keep the build green: an autonomous test/lint/typecheck feedback loop for AI coding agents. Use as a CLI, an MCP server, a Claude/Cursor skill, or a pi extension.",
   "type": "module",

@@ -8,10 +8,10 @@ One core engine, four ways to run it:
 
 | Surface | How |
 |---------|-----|
-| **CLI** | `npx greenloop check` · `greenloop watch` |
-| **MCP server** | `npx greenloop mcp` (use from Claude, Cursor, any MCP client) |
+| **CLI** | `npx @vaibhav290797/greenloop check` · `greenloop watch` |
+| **MCP server** | `npx @vaibhav290797/greenloop mcp` (use from Claude, Cursor, any MCP client) |
 | **Claude / Cursor skill** | drop [`skills/greenloop`](skills/greenloop/SKILL.md) into your skills dir |
-| **pi extension** | `import greenloop from "greenloop/pi"` — closed loop on the pi event bus |
+| **pi extension** | `import greenloop from "@vaibhav290797/greenloop/pi"` — closed loop on the pi event bus |
 
 > Status: M1 complete. Core, CLI, and MCP server are built, tested (11 tests), and verified;
 > the pi extension typechecks against pi and awaits an in-harness run. See
@@ -22,10 +22,10 @@ One core engine, four ways to run it:
 ```bash
 pi install git:github.com/vaibhav-patel/greenloop   # extension (agent_end loop + /green) and skill
 # once published to npm:
-pi install npm:greenloop
+pi install npm:@vaibhav290797/greenloop
 ```
 
-`import … from "greenloop/pi"` is for embedding in your own SDK app — pi users should `pi install` instead.
+`import … from "@vaibhav290797/greenloop/pi"` is for embedding in your own SDK app — pi users should `pi install` instead.
 
 ## Quick start
 
