@@ -1,4 +1,4 @@
-# greenloop
+# pi-green-loop
 
 **Keep the build green.** An autonomous test / lint / typecheck / build feedback loop for AI
 coding agents. After code changes, greenloop runs your project's checks and — when something is
@@ -8,10 +8,10 @@ One core engine, four ways to run it:
 
 | Surface | How |
 |---------|-----|
-| **CLI** | `npx @vaibhav290797/greenloop check` · `greenloop watch` |
-| **MCP server** | `npx @vaibhav290797/greenloop mcp` (use from Claude, Cursor, any MCP client) |
+| **CLI** | `npx pi-green-loop check` · `greenloop watch` |
+| **MCP server** | `npx pi-green-loop mcp` (use from Claude, Cursor, any MCP client) |
 | **Claude / Cursor skill** | drop [`skills/greenloop`](skills/greenloop/SKILL.md) into your skills dir |
-| **pi extension** | `import greenloop from "@vaibhav290797/greenloop/pi"` — closed loop on the pi event bus |
+| **pi extension** | `import greenloop from "pi-green-loop/pi"` — closed loop on the pi event bus |
 
 > Status: M1 complete. Core, CLI, and MCP server are built, tested (11 tests), and verified;
 > the pi extension typechecks against pi and awaits an in-harness run. See
@@ -20,12 +20,12 @@ One core engine, four ways to run it:
 ## Install into pi
 
 ```bash
-pi install git:github.com/vaibhav-patel/greenloop   # extension (agent_end loop + /green) and skill
+pi install git:github.com/vaibhav-patel/pi-green-loop   # extension (agent_end loop + /green) and skill
 # once published to npm:
-pi install npm:@vaibhav290797/greenloop
+pi install npm:pi-green-loop
 ```
 
-`import … from "@vaibhav290797/greenloop/pi"` is for embedding in your own SDK app — pi users should `pi install` instead.
+`import … from "pi-green-loop/pi"` is for embedding in your own SDK app — pi users should `pi install` instead.
 
 ## Quick start
 

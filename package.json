@@ -1,23 +1,21 @@
 {
-  "name": "@vaibhav290797/greenloop",
+  "name": "pi-green-loop",
   "version": "0.1.0",
   "description": "Keep the build green: an autonomous test/lint/typecheck feedback loop for AI coding agents. Use as a CLI, an MCP server, a Claude/Cursor skill, or a pi extension.",
   "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vaibhav-patel/greenloop.git"
+    "url": "git+https://github.com/vaibhav-patel/pi-green-loop.git"
   },
-  "homepage": "https://github.com/vaibhav-patel/greenloop#readme",
-  "bugs": "https://github.com/vaibhav-patel/greenloop/issues",
-  "publishConfig": {
-    "access": "public"
-  },
+  "homepage": "https://github.com/vaibhav-patel/pi-green-loop#readme",
+  "bugs": "https://github.com/vaibhav-patel/pi-green-loop/issues",
   "engines": {
     "node": ">=20"
   },
   "bin": {
-    "greenloop": "dist/cli/index.js"
+    "greenloop": "dist/cli/index.js",
+    "pi-green-loop": "dist/cli/index.js"
   },
   "exports": {
     ".": "./dist/core/index.js",
@@ -42,6 +40,9 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
+    "pi-package",
+    "pi-green-loop",
+    "greenloop",
     "ai",
     "agent",
     "mcp",
@@ -52,8 +53,7 @@
     "claude",
     "cursor",
     "pi",
-    "coding-agent",
-    "pi-package"
+    "coding-agent"
   ],
   "optionalDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
