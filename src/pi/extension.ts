@@ -1,7 +1,7 @@
-// pi extension surface for greenloop.
+// pi extension surface for pi-green-loop.
 //
 // Requires "@earendil-works/pi-coding-agent" (a peer dependency provided by the pi harness).
-// Install into a pi project, or load ephemerally:  pi -e ./node_modules/greenloop/dist/pi/extension.js
+// Install into a pi project, or load ephemerally:  pi -e ./node_modules/pi-green-loop/dist/pi/extension.js
 //
 // Behavior: after the agent finishes a turn (`agent_end`), run the project's checks. If any
 // fail, feed the failing output back as a follow-up so the agent fixes it — capped by
@@ -16,7 +16,7 @@ interface GreenloopState {
   running: boolean;
 }
 
-export default function greenloop(pi: ExtensionAPI): void {
+export default function piGreenLoop(pi: ExtensionAPI): void {
   const state: GreenloopState = { enabled: true, attempts: 0, maxAttempts: 3, running: false };
 
   // A fresh interactive prompt resets the auto-fix budget.
@@ -33,20 +33,20 @@ export default function greenloop(pi: ExtensionAPI): void {
     if (state.attempts >= state.maxAttempts) return;
 
     state.running = true;
-    ctx.ui.setStatus("greenloop", "running checks…");
+    ctx.ui.setStatus("pi-green-loop", "running checks…");
     try {
       const report = await runChecks({ cwd: ctx.cwd, signal: ctx.signal });
       if (report.results.length === 0) {
-        ctx.ui.setStatus("greenloop", undefined);
+        ctx.ui.setStatus("pi-green-loop", undefined);
         return;
       }
       if (report.ok) {
-        ctx.ui.setStatus("greenloop", "checks passing");
+        ctx.ui.setStatus("pi-green-loop", "checks passing");
         return;
       }
       const failing = report.results.filter((r) => !r.ok).length;
       state.attempts += 1;
-      ctx.ui.setStatus("greenloop", `${failing} failing (fix ${state.attempts}/${state.maxAttempts})`);
+      ctx.ui.setStatus("pi-green-loop", `${failing} failing (fix ${state.attempts}/${state.maxAttempts})`);
       await pi.sendUserMessage(reportToAgentFeedback(report), { deliverAs: "followUp" });
     } finally {
       state.running = false;
@@ -54,22 +54,22 @@ export default function greenloop(pi: ExtensionAPI): void {
   });
 
   pi.registerCommand("green", {
-    description: "greenloop: run checks now, or '/green on' | '/green off' to toggle the auto-fix loop.",
+    description: "pi-green-loop: run checks now, or '/green on' | '/green off' to toggle the auto-fix loop.",
     handler: async (args, ctx) => {
       const arg = args.trim().toLowerCase();
       if (arg === "off") {
         state.enabled = false;
-        ctx.ui.notify("greenloop: auto-fix loop disabled");
+        ctx.ui.notify("pi-green-loop: auto-fix loop disabled");
         return;
       }
       if (arg === "on") {
         state.enabled = true;
-        ctx.ui.notify("greenloop: auto-fix loop enabled");
+        ctx.ui.notify("pi-green-loop: auto-fix loop enabled");
         return;
       }
       const report = await runChecks({ cwd: ctx.cwd, signal: ctx.signal });
       const failing = report.results.filter((r) => !r.ok).length;
-      ctx.ui.notify(report.ok ? "greenloop: all checks passing" : `greenloop: ${failing} failing`);
+      ctx.ui.notify(report.ok ? "pi-green-loop: all checks passing" : `pi-green-loop: ${failing} failing`);
       if (!report.ok) await pi.sendUserMessage(reportToAgentFeedback(report), { deliverAs: "followUp" });
     },
   });

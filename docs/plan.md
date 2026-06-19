@@ -1,4 +1,4 @@
-# greenloop — architecture & implementation plan
+# pi-green-loop — architecture & implementation plan
 
 ## Vision
 
@@ -17,14 +17,14 @@ One **core engine**, four **thin surfaces**.
             ┌───────────────┬───────────┼─────────────┬────────────────┐
             ▼               ▼           ▼             ▼                ▼
           CLI            MCP server   pi extension   Claude/Cursor   (future
-       greenloop        npx greenloop   greenloop/pi     skill        modules)
+       pi-green-loop        npx pi-green-loop   pi-green-loop/pi     skill        modules)
         check/watch        mcp          agent_end loop   SKILL.md
 ```
 
 ## Core engine (`src/core`) — dependency-free, Node built-ins only
 
 - **`types.ts`** — `Check`, `CheckResult`, `Report`, `GreenloopConfig`.
-- **`config.ts`** — load `greenloop.json` / `.greenloop.json` if present.
+- **`config.ts`** — load `pi-green-loop.json` / `.pi-green-loop.json` if present.
 - **`detect.ts`** — discover checks. v0: Node `package.json` scripts (typecheck/lint/test/build)
   with package-manager detection (npm/pnpm/yarn/bun). Config file overrides detection.
   Future: Makefile, `pyproject.toml`, `cargo`, `go`.
@@ -36,31 +36,31 @@ One **core engine**, four **thin surfaces**.
 ## Surfaces
 
 ### CLI (`src/cli`)
-`greenloop <command>`:
+`pi-green-loop <command>`:
 - `detect` — print detected checks.
 - `check` — run once, print report, exit non-zero if red.
 - `watch` — re-run on file changes (debounced; ignores node_modules/.git/dist).
 - `mcp` — start the MCP server (dynamic import; MCP deps optional).
-- `init` — write a `greenloop.json` template from detected checks.
+- `init` — write a `pi-green-loop.json` template from detected checks.
 
 ### MCP server (`src/mcp/server.ts`)
 stdio MCP server exposing tools:
 - `detect_checks` — list configured/detected checks.
 - `run_checks` — run all (or a subset by kind/id); returns ok + per-check status + failing output.
 - `get_last_report` — cached last result.
-Run via `npx greenloop mcp`; register in Claude/Cursor's MCP config.
+Run via `npx pi-green-loop mcp`; register in Claude/Cursor's MCP config.
 
 ### pi extension (`src/pi/extension.ts`)
 Uses the pi event bus for the real closed loop:
 - On `agent_end` (debounced), run checks via the core engine.
 - If red, `pi.sendUserMessage(reportToAgentFeedback(report), { deliverAs: "followUp" })` so the
   agent fixes it — capped by `maxAttempts` to prevent infinite loops / token burn.
-- `ctx.ui.setStatus("greenloop", "✓ passing" | "✗ N failing")` footer indicator.
+- `ctx.ui.setStatus("pi-green-loop", "✓ passing" | "✗ N failing")` footer indicator.
 - `/green`, `/green watch on|off`, `/green cmd "…"` commands.
 - Respect `ctx.isProjectTrusted()` before executing anything.
 
-### Skill (`skills/greenloop/SKILL.md`)
-Progressive-disclosure instructions for Claude/Cursor/pi: after edits, run `greenloop check`,
+### Skill (`skills/pi-green-loop/SKILL.md`)
+Progressive-disclosure instructions for Claude/Cursor/pi: after edits, run `pi-green-loop check`,
 read failures, fix, repeat until green. Works without the extension.
 
 ## Guardrails

@@ -1,17 +1,17 @@
 # pi-green-loop
 
 **Keep the build green.** An autonomous test / lint / typecheck / build feedback loop for AI
-coding agents. After code changes, greenloop runs your project's checks and — when something is
+coding agents. After code changes, pi-green-loop runs your project's checks and — when something is
 red — hands the failing output back to the agent so it fixes it, looping until green.
 
 One core engine, four ways to run it:
 
 | Surface | How |
 |---------|-----|
-| **CLI** | `npx pi-green-loop check` · `greenloop watch` |
+| **CLI** | `npx pi-green-loop check` · `pi-green-loop watch` |
 | **MCP server** | `npx pi-green-loop mcp` (use from Claude, Cursor, any MCP client) |
-| **Claude / Cursor skill** | drop [`skills/greenloop`](skills/greenloop/SKILL.md) into your skills dir |
-| **pi extension** | `import greenloop from "pi-green-loop/pi"` — closed loop on the pi event bus |
+| **Claude / Cursor skill** | drop [`skills/pi-green-loop`](skills/pi-green-loop/SKILL.md) into your skills dir |
+| **pi extension** | `import piGreenLoop from "pi-green-loop/pi"` — closed loop on the pi event bus |
 
 > Status: M1 complete. Core, CLI, and MCP server are built, tested (11 tests), and verified;
 > the pi extension typechecks against pi and awaits an in-harness run. See
@@ -42,7 +42,7 @@ node dist/cli/index.js check
 
 ## How it decides what to run
 
-1. A `greenloop.json` (or `.greenloop.json`) in the project root, if present, wins.
+1. A `pi-green-loop.json` (or `.pi-green-loop.json`) in the project root, if present, wins.
 2. Otherwise it reads `package.json` scripts and picks up `typecheck`, `lint`, `test`, `build`
    (with npm/pnpm/yarn/bun auto-detected).
 
@@ -53,7 +53,7 @@ node dist/cli/index.js init
 ```
 
 ```jsonc
-// greenloop.json
+// pi-green-loop.json
 {
   "timeoutMs": 300000,
   "checks": [
@@ -77,7 +77,7 @@ npm test           # node --test suite
 npm run typecheck  # tsc --noEmit
 ```
 
-greenloop checks itself: `node dist/cli/index.js check` runs its own typecheck + test + build.
+pi-green-loop checks itself: `node dist/cli/index.js check` runs its own typecheck + test + build.
 
 ## License
 

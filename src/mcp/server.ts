@@ -1,9 +1,9 @@
-// MCP server surface for greenloop.
+// MCP server surface for pi-green-loop.
 //
 // Requires the optional dependencies "@modelcontextprotocol/sdk" and "zod":
 //   npm install @modelcontextprotocol/sdk zod
 //
-// Run via: `npx greenloop mcp` (the CLI imports startServer from here).
+// Run via: `npx pi-green-loop mcp` (the CLI imports startServer from here).
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -25,14 +25,14 @@ function summarize(report: Report): string {
 }
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "greenloop", version: "0.1.0" });
+  const server = new McpServer({ name: "pi-green-loop", version: "0.1.1" });
   let lastReport: Report | undefined;
 
   server.registerTool(
     "detect_checks",
     {
       title: "Detect checks",
-      description: "List the checks greenloop would run for a project (from greenloop.json or package.json scripts).",
+      description: "List the checks pi-green-loop would run for a project (from pi-green-loop.json or package.json scripts).",
       inputSchema: { cwd: z.string().optional().describe("Project directory (defaults to server cwd).") },
     },
     async ({ cwd }) => {

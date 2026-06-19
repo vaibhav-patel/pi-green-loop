@@ -55,13 +55,13 @@ export async function runChecks(options: RunChecksOptions = {}): Promise<Report>
 /** Human-readable one-line-per-check summary. */
 export function formatReport(report: Report): string {
   if (report.results.length === 0) {
-    return "greenloop: no checks detected (add a greenloop.json or package.json scripts).";
+    return "pi-green-loop: no checks detected (add a pi-green-loop.json or package.json scripts).";
   }
   const lines = report.results.map((r) => {
     const mark = r.ok ? "PASS" : r.timedOut ? "TIMEOUT" : "FAIL";
     return `  [${mark}] ${r.check.name} (${r.check.kind}) — ${Math.round(r.durationMs)}ms`;
   });
-  const header = report.ok ? "greenloop: all checks passing" : "greenloop: checks FAILING";
+  const header = report.ok ? "pi-green-loop: all checks passing" : "pi-green-loop: checks FAILING";
   return `${header}\n${lines.join("\n")}`;
 }
 
@@ -82,7 +82,7 @@ export function reportToAgentFeedback(report: Report): string {
     ].join("\n");
   });
   return [
-    `greenloop detected ${failing.length} failing check(s). Fix the underlying issues, then re-run the checks. Do not silence or skip checks.`,
+    `pi-green-loop detected ${failing.length} failing check(s). Fix the underlying issues, then re-run the checks. Do not silence or skip checks.`,
     "",
     ...blocks,
   ].join("\n");

@@ -11,17 +11,17 @@ import {
 } from "../core/index.js";
 import type { Check, CheckResult, GreenloopConfig } from "../core/index.js";
 
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 
-const HELP = `greenloop ${VERSION} — keep the build green
+const HELP = `pi-green-loop ${VERSION} — keep the build green
 
-Usage: greenloop <command> [options]
+Usage: pi-green-loop <command> [options]
 
 Commands:
-  detect            Show the checks greenloop would run
+  detect            Show the checks pi-green-loop would run
   check             Run all checks once (exit 1 if any fail)
   watch             Re-run checks on file changes
-  init              Write a greenloop.json from detected checks
+  init              Write a pi-green-loop.json from detected checks
   mcp               Start the MCP server (stdio)
   help, version
 
@@ -57,7 +57,7 @@ function main(argv: string[]): Promise<number> | number {
     case "mcp":
       return cmdMcp();
     default:
-      process.stderr.write(`greenloop: unknown command '${command}'\n\n${HELP}`);
+      process.stderr.write(`pi-green-loop: unknown command '${command}'\n\n${HELP}`);
       return 1;
   }
 }
@@ -66,10 +66,10 @@ function cmdDetect(): number {
   const cwd = process.cwd();
   const checks = detectChecks(cwd, loadConfig(cwd));
   if (checks.length === 0) {
-    process.stdout.write("greenloop: no checks detected.\n");
+    process.stdout.write("pi-green-loop: no checks detected.\n");
     return 0;
   }
-  process.stdout.write(`greenloop: ${checks.length} check(s) in ${cwd}\n`);
+  process.stdout.write(`pi-green-loop: ${checks.length} check(s) in ${cwd}\n`);
   for (const c of checks) {
     process.stdout.write(`  - ${c.name} (${c.kind}) [${c.source}]: ${c.command}\n`);
   }
@@ -83,7 +83,7 @@ async function cmdCheck(rest: string[]): Promise<number> {
     onCheckResult: feedback ? undefined : (r) => process.stderr.write(line(r)),
   });
   if (feedback) {
-    process.stdout.write(report.ok ? "greenloop: all checks passing\n" : `${reportToAgentFeedback(report)}\n`);
+    process.stdout.write(report.ok ? "pi-green-loop: all checks passing\n" : `${reportToAgentFeedback(report)}\n`);
   } else {
     process.stdout.write(`${formatReport(report)}\n`);
   }
@@ -92,7 +92,7 @@ async function cmdCheck(rest: string[]): Promise<number> {
 
 async function cmdWatch(): Promise<number> {
   const cwd = process.cwd();
-  const ignore = /(^|\/)(node_modules|\.git|dist|coverage|\.greenloop\.cache)(\/|$)/;
+  const ignore = /(^|\/)(node_modules|\.git|dist|coverage|\.pi-green-loop\.cache)(\/|$)/;
   let running = false;
   let rerun = false;
 
@@ -102,7 +102,7 @@ async function cmdWatch(): Promise<number> {
       return;
     }
     running = true;
-    process.stdout.write("\ngreenloop: running checks...\n");
+    process.stdout.write("\npi-green-loop: running checks...\n");
     const report = await runChecks({ onCheckResult: (r) => process.stderr.write(line(r)) });
     process.stdout.write(`${formatReport(report)}\n`);
     running = false;
@@ -112,7 +112,7 @@ async function cmdWatch(): Promise<number> {
     }
   };
 
-  process.stdout.write(`greenloop: watching ${cwd} (Ctrl+C to stop)\n`);
+  process.stdout.write(`pi-green-loop: watching ${cwd} (Ctrl+C to stop)\n`);
   await run();
 
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -125,7 +125,7 @@ async function cmdWatch(): Promise<number> {
   // Keep the process alive until interrupted.
   return new Promise<number>((resolve) => {
     process.on("SIGINT", () => {
-      process.stdout.write("\ngreenloop: stopped\n");
+      process.stdout.write("\npi-green-loop: stopped\n");
       resolve(0);
     });
   });
@@ -135,7 +135,7 @@ function cmdInit(): number {
   const cwd = process.cwd();
   const path = configPath(cwd);
   if (existsSync(path)) {
-    process.stderr.write(`greenloop: ${basename(path)} already exists; not overwriting.\n`);
+    process.stderr.write(`pi-green-loop: ${basename(path)} already exists; not overwriting.\n`);
     return 1;
   }
   const detected = detectChecks(cwd, {});
@@ -147,7 +147,7 @@ function cmdInit(): number {
         : [{ name: "test", kind: "test", command: "npm test" }],
   };
   writeFileSync(path, `${JSON.stringify(config, null, 2)}\n`);
-  process.stdout.write(`greenloop: wrote ${basename(path)} with ${config.checks?.length ?? 0} check(s).\n`);
+  process.stdout.write(`pi-green-loop: wrote ${basename(path)} with ${config.checks?.length ?? 0} check(s).\n`);
   return 0;
 }
 
@@ -159,7 +159,7 @@ async function cmdMcp(): Promise<number> {
   } catch (err) {
     const message = (err as Error).message;
     process.stderr.write(
-      `greenloop: failed to start MCP server: ${message}\n` +
+      `pi-green-loop: failed to start MCP server: ${message}\n` +
         "Install the MCP dependencies first:\n  npm install @modelcontextprotocol/sdk zod\n",
     );
     return 1;
@@ -177,7 +177,7 @@ Promise.resolve(main(process.argv)).then(
     process.exitCode = code;
   },
   (err) => {
-    process.stderr.write(`greenloop: ${(err as Error).stack ?? err}\n`);
+    process.stderr.write(`pi-green-loop: ${(err as Error).stack ?? err}\n`);
     process.exitCode = 1;
   },
 );

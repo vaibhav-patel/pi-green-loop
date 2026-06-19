@@ -24,8 +24,8 @@ test("failing command -> not ok with its exit code", async () => {
 });
 
 test("captures stdout output", async () => {
-  const r = await runCheck(mk("echo hello-greenloop"), opts());
-  assert.match(r.output, /hello-greenloop/);
+  const r = await runCheck(mk("echo hello-pi-green-loop"), opts());
+  assert.match(r.output, /hello-pi-green-loop/);
 });
 
 test("kills and flags commands that exceed the timeout", async () => {

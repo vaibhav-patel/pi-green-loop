@@ -1,5 +1,5 @@
 import { reportToAgentFeedback, runChecks } from "../core/index.js";
-export default function greenloop(pi) {
+export default function piGreenLoop(pi) {
     const state = { enabled: true, attempts: 0, maxAttempts: 3, running: false };
     // A fresh interactive prompt resets the auto-fix budget.
     pi.on("input", (event) => {
@@ -18,20 +18,20 @@ export default function greenloop(pi) {
         if (state.attempts >= state.maxAttempts)
             return;
         state.running = true;
-        ctx.ui.setStatus("greenloop", "running checks…");
+        ctx.ui.setStatus("pi-green-loop", "running checks…");
         try {
             const report = await runChecks({ cwd: ctx.cwd, signal: ctx.signal });
             if (report.results.length === 0) {
-                ctx.ui.setStatus("greenloop", undefined);
+                ctx.ui.setStatus("pi-green-loop", undefined);
                 return;
             }
             if (report.ok) {
-                ctx.ui.setStatus("greenloop", "checks passing");
+                ctx.ui.setStatus("pi-green-loop", "checks passing");
                 return;
             }
             const failing = report.results.filter((r) => !r.ok).length;
             state.attempts += 1;
-            ctx.ui.setStatus("greenloop", `${failing} failing (fix ${state.attempts}/${state.maxAttempts})`);
+            ctx.ui.setStatus("pi-green-loop", `${failing} failing (fix ${state.attempts}/${state.maxAttempts})`);
             await pi.sendUserMessage(reportToAgentFeedback(report), { deliverAs: "followUp" });
         }
         finally {
@@ -39,22 +39,22 @@ export default function greenloop(pi) {
         }
     });
     pi.registerCommand("green", {
-        description: "greenloop: run checks now, or '/green on' | '/green off' to toggle the auto-fix loop.",
+        description: "pi-green-loop: run checks now, or '/green on' | '/green off' to toggle the auto-fix loop.",
         handler: async (args, ctx) => {
             const arg = args.trim().toLowerCase();
             if (arg === "off") {
                 state.enabled = false;
-                ctx.ui.notify("greenloop: auto-fix loop disabled");
+                ctx.ui.notify("pi-green-loop: auto-fix loop disabled");
                 return;
             }
             if (arg === "on") {
                 state.enabled = true;
-                ctx.ui.notify("greenloop: auto-fix loop enabled");
+                ctx.ui.notify("pi-green-loop: auto-fix loop enabled");
                 return;
             }
             const report = await runChecks({ cwd: ctx.cwd, signal: ctx.signal });
             const failing = report.results.filter((r) => !r.ok).length;
-            ctx.ui.notify(report.ok ? "greenloop: all checks passing" : `greenloop: ${failing} failing`);
+            ctx.ui.notify(report.ok ? "pi-green-loop: all checks passing" : `pi-green-loop: ${failing} failing`);
             if (!report.ok)
                 await pi.sendUserMessage(reportToAgentFeedback(report), { deliverAs: "followUp" });
         },

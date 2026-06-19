@@ -1,2 +1,2 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-export default function greenloop(pi: ExtensionAPI): void;
+export default function piGreenLoop(pi: ExtensionAPI): void;

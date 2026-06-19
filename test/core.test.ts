@@ -45,7 +45,7 @@ test("detectChecks picks pnpm when a pnpm lockfile exists", () => {
 test("config checks override detection", () => {
   const dir = tempProject({
     "package.json": JSON.stringify({ scripts: { test: "vitest" } }),
-    "greenloop.json": JSON.stringify({ checks: [{ name: "ci", command: "make ci" }] }),
+    "pi-green-loop.json": JSON.stringify({ checks: [{ name: "ci", command: "make ci" }] }),
   });
   try {
     const checks = detectChecks(dir, loadConfig(dir));
@@ -58,7 +58,7 @@ test("config checks override detection", () => {
 });
 
 test("loadConfig throws a helpful error on invalid JSON", () => {
-  const dir = tempProject({ "greenloop.json": "{ not json" });
+  const dir = tempProject({ "pi-green-loop.json": "{ not json" });
   try {
     assert.throws(() => loadConfig(dir), /failed to parse/);
   } finally {

@@ -1,8 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-const CONFIG_FILES = ["greenloop.json", ".greenloop.json"];
+// Current name first; legacy "greenloop.json" is still read so existing setups keep working.
+const CONFIG_FILES = ["pi-green-loop.json", ".pi-green-loop.json", "greenloop.json", ".greenloop.json"];
 /**
- * Load greenloop configuration from the first config file found in `cwd`.
+ * Load configuration from the first config file found in `cwd`.
  * Returns an empty config when none exists.
  */
 export function loadConfig(cwd) {
@@ -15,12 +16,13 @@ export function loadConfig(cwd) {
             return parsed ?? {};
         }
         catch (err) {
-            throw new Error(`greenloop: failed to parse ${file}: ${err.message}`);
+            throw new Error(`pi-green-loop: failed to parse ${file}: ${err.message}`);
         }
     }
     return {};
 }
+/** The canonical config filename the CLI writes to. */
 export function configPath(cwd) {
-    return join(cwd, CONFIG_FILES[0]);
+    return join(cwd, "pi-green-loop.json");
 }
 //# sourceMappingURL=config.js.map
