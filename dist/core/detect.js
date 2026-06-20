@@ -1,16 +1,10 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-/** Known script names mapped to a check kind, in match priority order. */
-const SCRIPT_KINDS = [
-    { kind: "typecheck", names: ["typecheck", "type-check", "tsc", "types"] },
-    { kind: "lint", names: ["lint", "lint:check", "eslint", "biome"] },
-    { kind: "test", names: ["test", "test:unit", "test:ci", "vitest", "jest"] },
-    { kind: "build", names: ["build", "compile"] },
-];
+import { detectAll } from "./detectors/index.js";
 const DEFAULT_ORDER = ["typecheck", "lint", "test", "build"];
 /**
  * Determine the ordered list of checks for a project. An explicit config (`config.checks`)
- * takes precedence; otherwise checks are inferred from `package.json` scripts.
+ * takes precedence; otherwise checks are inferred per-ecosystem by the detector registry.
  */
 export function detectChecks(cwd, config = {}) {
     if (config.checks && config.checks.length > 0) {
@@ -24,26 +18,7 @@ export function detectChecks(cwd, config = {}) {
             source: "config",
         }));
     }
-    const checks = [];
-    const pkgPath = join(cwd, "package.json");
-    if (existsSync(pkgPath)) {
-        const pkg = readPackageJson(pkgPath);
-        const runner = detectRunner(cwd, pkg);
-        const scripts = pkg.scripts ?? {};
-        for (const { kind, names } of SCRIPT_KINDS) {
-            const match = names.find((name) => typeof scripts[name] === "string");
-            if (match) {
-                checks.push({
-                    id: `pkg-${match}`,
-                    name: match,
-                    kind,
-                    command: `${runner} run ${match}`,
-                    enabled: true,
-                    source: "package.json",
-                });
-            }
-        }
-    }
+    const checks = detectAll(makeDetectContext(cwd, config));
     const order = config.order ?? DEFAULT_ORDER;
     checks.sort((a, b) => rank(order, a.kind) - rank(order, b.kind));
     return checks;
@@ -52,26 +27,32 @@ function rank(order, kind) {
     const i = order.indexOf(kind);
     return i === -1 ? order.length : i;
 }
-/** Pick a package-manager run command based on lockfiles / packageManager field. */
-function detectRunner(cwd, pkg) {
-    const pm = pkg.packageManager ?? "";
-    if (pm.startsWith("pnpm") || existsSync(join(cwd, "pnpm-lock.yaml")))
-        return "pnpm";
-    if (pm.startsWith("yarn") || existsSync(join(cwd, "yarn.lock")))
-        return "yarn";
-    if (pm.startsWith("bun") ||
-        existsSync(join(cwd, "bun.lockb")) ||
-        existsSync(join(cwd, "bun.lock"))) {
-        return "bun";
-    }
-    return "npm";
-}
-function readPackageJson(path) {
-    try {
-        return JSON.parse(readFileSync(path, "utf8"));
-    }
-    catch {
-        return {};
-    }
+/** Build a DetectContext with per-pass memoized file reads. */
+export function makeDetectContext(cwd, config = {}) {
+    const textCache = new Map();
+    const existsCache = new Map();
+    return {
+        cwd,
+        config,
+        readText(relPath) {
+            if (!textCache.has(relPath)) {
+                try {
+                    textCache.set(relPath, readFileSync(join(cwd, relPath), "utf8"));
+                }
+                catch {
+                    textCache.set(relPath, undefined);
+                }
+            }
+            return textCache.get(relPath);
+        },
+        exists(relPath) {
+            let v = existsCache.get(relPath);
+            if (v === undefined) {
+                v = existsSync(join(cwd, relPath));
+                existsCache.set(relPath, v);
+            }
+            return v;
+        },
+    };
 }
 //# sourceMappingURL=detect.js.map

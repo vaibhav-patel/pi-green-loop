@@ -1,5 +1,10 @@
 export type CheckKind = "typecheck" | "lint" | "test" | "build" | "custom";
 
+export type CheckSource = "config" | "package.json" | "builtin" | "node" | "python" | "go" | "rust" | "makefile";
+
+/** Test framework behind a `kind:"test"` check — drives affected-test scoping and failure parsing. */
+export type TestFramework = "vitest" | "jest" | "pytest" | "go" | "cargo" | "make";
+
 export interface Check {
   /** Stable identifier, unique within a run. */
   id: string;
@@ -12,7 +17,23 @@ export interface Check {
   cwd?: string;
   enabled: boolean;
   /** Where this check came from. */
-  source: "config" | "package.json" | "makefile" | "builtin";
+  source: CheckSource;
+  /** Test framework, when known. */
+  framework?: TestFramework;
+}
+
+/** A single parsed test/check failure (presentational; never affects pass/fail). */
+export interface ParsedFailure {
+  name: string;
+  message?: string;
+  file?: string;
+  line?: number;
+}
+
+export interface ParsedResult {
+  failures: ParsedFailure[];
+  failed?: number;
+  total?: number;
 }
 
 export interface CheckResult {
@@ -24,6 +45,8 @@ export interface CheckResult {
   /** Combined stdout+stderr, possibly truncated. */
   output: string;
   truncated: boolean;
+  /** Structured failures extracted from machine-readable reporter output, when available. */
+  parsed?: ParsedResult;
 }
 
 export interface Report {

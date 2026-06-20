@@ -1,7 +1,7 @@
 {
   "name": "pi-green-loop",
-  "version": "0.1.1",
-  "description": "Keep the build green: an autonomous test/lint/typecheck feedback loop for AI coding agents. Use as a CLI, an MCP server, a Claude/Cursor skill, or a pi extension.",
+  "version": "0.2.0",
+  "description": "Keep the build green: a polyglot, affected-test-scoped feedback loop for AI coding agents (Node/Python/Go/Rust/Make). Use as a CLI, an MCP server, a Claude/Cursor skill, or a pi extension.",
   "type": "module",
   "license": "MIT",
   "repository": {

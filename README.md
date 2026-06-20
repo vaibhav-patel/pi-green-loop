@@ -2,20 +2,29 @@
 
 **Keep the build green.** An autonomous test / lint / typecheck / build feedback loop for AI
 coding agents. After code changes, pi-green-loop runs your project's checks and — when something is
-red — hands the failing output back to the agent so it fixes it, looping until green.
+red — hands a parsed failure summary back to the agent so it fixes it, looping until green.
+
+Built to *just work* and stay fast:
+
+- **Polyglot detection** — Node (`package.json`), Python (`pyproject.toml`), Go (`go.mod`),
+  Rust (`Cargo.toml`), and `Makefile`, out of the box. No config required.
+- **Affected-test scoping** — runs only the tests impacted by the files that changed
+  (vitest / jest / pytest / go), so the loop stays fast on big suites.
+- **Parsed failures** — feeds the agent a compact list of failing test names, not a raw dump.
+- **Reliable loop** — debounced, capped, stops when it stops improving, and skips runs when
+  nothing changed.
 
 One core engine, four ways to run it:
 
 | Surface | How |
 |---------|-----|
-| **CLI** | `npx pi-green-loop check` · `pi-green-loop watch` |
+| **CLI** | `npx pi-green-loop check` · `pi-green-loop fix` · `pi-green-loop watch` |
 | **MCP server** | `npx pi-green-loop mcp` (use from Claude, Cursor, any MCP client) |
 | **Claude / Cursor skill** | drop [`skills/pi-green-loop`](skills/pi-green-loop/SKILL.md) into your skills dir |
 | **pi extension** | `import piGreenLoop from "pi-green-loop/pi"` — closed loop on the pi event bus |
 
-> Status: M1 complete. Core, CLI, and MCP server are built, tested (11 tests), and verified;
-> the pi extension typechecks against pi and awaits an in-harness run. See
-> [docs/plan.md](docs/plan.md) and [IDEAS.md](IDEAS.md).
+The core engine is dependency-free (Node built-ins only); the CLI, MCP server, and pi extension all
+sit on top of it.
 
 ## Install into pi
 
@@ -43,13 +52,20 @@ node dist/cli/index.js check
 ## How it decides what to run
 
 1. A `pi-green-loop.json` (or `.pi-green-loop.json`) in the project root, if present, wins.
-2. Otherwise it reads `package.json` scripts and picks up `typecheck`, `lint`, `test`, `build`
-   (with npm/pnpm/yarn/bun auto-detected).
+2. Otherwise it auto-detects per ecosystem (first match per kind, polyglot repos supported):
 
-Generate a starter config from what's detected:
+   | Ecosystem | Detected from | Checks |
+   |-----------|---------------|--------|
+   | **Node** | `package.json` scripts | `typecheck` / `lint` / `test` / `build` (npm/pnpm/yarn/bun) |
+   | **Python** | `pyproject.toml` etc. | `pytest`, `ruff check .`, `mypy .` |
+   | **Go** | `go.mod` | `go test ./...`, `go vet ./...`, `golangci-lint run`, `go build ./...` |
+   | **Rust** | `Cargo.toml` | `cargo test`, `cargo clippy`, `cargo check`, `cargo build` |
+   | **Make** | `Makefile` | `make <test\|lint\|build>` (lowest priority) |
+
+Generate a starter config (add `--ci` to also write a GitHub Actions workflow):
 
 ```bash
-node dist/cli/index.js init
+node dist/cli/index.js init --ci
 ```
 
 ```jsonc
@@ -63,10 +79,43 @@ node dist/cli/index.js init
 }
 ```
 
+## Fast & focused
+
+Scope a run to just the tests affected by what changed:
+
+```bash
+node dist/cli/index.js check --since HEAD~1          # tests touching files changed since a git ref
+node dist/cli/index.js check --affected src/a.ts,src/b.ts
+```
+
+When scoping isn't possible (no git, unknown framework, empty set) it safely falls back to the full
+suite — it never reports a false pass by running zero tests. `watch` accumulates changed files and
+scopes each re-run automatically.
+
+Run formatters / autofixers, then re-check:
+
+```bash
+node dist/cli/index.js fix    # prettier/eslint --fix, ruff format/--fix, gofmt, cargo fmt (only what's detected)
+```
+
+`fix` never installs anything — it only runs a tool when there's evidence it's already available
+(a dependency or its config file).
+
 ## The loop (pi extension)
 
-The pi adapter listens for `agent_end`, runs the checks, and on failure injects the failing
-output back as a follow-up so the agent fixes it — capped by `maxAttempts` to avoid runaway loops.
+The pi adapter listens for `agent_end` and, once the agent is idle, runs the checks scoped to the
+files it just edited. On failure it injects a parsed failure summary back as a follow-up so the
+agent fixes it. The loop is guarded:
+
+- **Debounced** — only runs when idle with no queued messages.
+- **Capped** — at most `maxAttempts` (default 3) auto-fixes per interactive turn.
+- **Stops when stuck** — if a run reproduces the exact same failures, it pauses instead of looping
+  (`/green` resumes it).
+- **Skips redundant runs** — caches the last all-green commit and skips when `HEAD` is unchanged and
+  nothing was edited.
+- **Status gauge** — a footer status plus a widget listing the currently-failing checks.
+
+`/green` runs the checks now; `/green on` · `/green off` toggle the auto-fix loop.
 
 ## Development
 

@@ -25,7 +25,7 @@ function summarize(report: Report): string {
 }
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "pi-green-loop", version: "0.1.1" });
+  const server = new McpServer({ name: "pi-green-loop", version: "0.2.0" });
   let lastReport: Report | undefined;
 
   server.registerTool(
@@ -56,14 +56,22 @@ export function createServer(): McpServer {
         cwd: z.string().optional().describe("Project directory (defaults to server cwd)."),
         kinds: z.array(z.enum(KINDS)).optional().describe("Only run checks of these kinds."),
         stopOnFirstFailure: z.boolean().optional(),
+        affectedFiles: z
+          .array(z.string())
+          .optional()
+          .describe("Changed files to scope test checks to (only impacted tests run)."),
+        since: z
+          .string()
+          .optional()
+          .describe("Git ref; scope tests to files changed since it (when affectedFiles is omitted)."),
       },
     },
-    async ({ cwd, kinds, stopOnFirstFailure }) => {
+    async ({ cwd, kinds, stopOnFirstFailure, affectedFiles, since }) => {
       const dir = cwd ?? process.cwd();
       const config = loadConfig(dir);
       let checks = detectChecks(dir, config);
       if (kinds && kinds.length > 0) checks = checks.filter((c) => kinds.includes(c.kind));
-      lastReport = await runChecks({ cwd: dir, config, checks, stopOnFirstFailure });
+      lastReport = await runChecks({ cwd: dir, config, checks, stopOnFirstFailure, affectedFiles, since });
       return { content: [{ type: "text", text: summarize(lastReport) }], isError: !lastReport.ok };
     },
   );

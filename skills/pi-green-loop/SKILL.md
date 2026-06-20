@@ -15,11 +15,14 @@ before you consider the work finished.
    - Otherwise run it from the shell: `npx pi-green-loop check` (use `--feedback` to get failure
      text optimized for fixing).
    - To see what will run first: `npx pi-green-loop detect`.
+   - On a big suite, scope to what you changed: `npx pi-green-loop check --since HEAD` (or
+     `--affected file1,file2`). With the MCP server, pass `affectedFiles` / `since` to `run_checks`.
 
 2. **If everything passes**, you're done — say so.
 
 3. **If something fails**, read the failing output, find the *root cause*, fix it, and run the
-   checks again. Repeat until green.
+   checks again. Repeat until green. For pure formatting/style failures, `npx pi-green-loop fix`
+   runs the project's formatters (prettier/eslint, ruff, gofmt, cargo fmt) and re-checks.
 
 ## Rules
 
@@ -33,8 +36,9 @@ before you consider the work finished.
 
 ## Configuration
 
-pi-green-loop auto-detects checks from `package.json` scripts (`typecheck`, `lint`, `test`,
-`build`). To pin exact commands, add a `pi-green-loop.json`:
+pi-green-loop auto-detects checks per ecosystem — Node (`package.json` scripts), Python
+(`pyproject.toml` → pytest/ruff/mypy), Go (`go.mod` → go test/vet/build), Rust (`Cargo.toml` →
+cargo test/clippy/check), and `Makefile` targets. To pin exact commands, add a `pi-green-loop.json`:
 
 ```json
 {
